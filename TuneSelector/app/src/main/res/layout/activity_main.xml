@@ -54,6 +54,17 @@
             android:layout_width="50dp"
             android:layout_height="50dp" />
     </LinearLayout>
+    <EditText
+        android:id="@+id/send_sequence"
+        android:visibility="invisible"
+        android:padding="16dp"
+        android:layout_above="@+id/send_btn"
+        android:layout_below="@+id/tune_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text|textMultiLine"
+        android:scrollHorizontally="false"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/send_btn"
