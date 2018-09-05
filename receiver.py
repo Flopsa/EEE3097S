@@ -3,6 +3,7 @@ import math
 import os
 from datetime import datetime
 from time import sleep
+import binascii
 
 # This is for revision 1 of the Raspberry Pi, Model B
 # This pin is also referred to as GPIO23
@@ -51,10 +52,32 @@ while True:
 
             previousVal = value
             value = GPIO.input(INPUT_WIRE)
-
+            
+        #Translate signal and write input into string
+        message =''
         for (val, pulse) in command:
-            if pulse > 1000:
-                print "----------Start----------"
-                print val, pulse
-                print "-----------End-----------\n"
-                print "Size of array is " + str(len(command))
+            #Assume no noise and consider gap difference
+            if val ==1:
+                #add the 2 approx vals and place threshold in middle
+                message+='1' if pulse>1125 else '0'
+            #if pulse > 1000:
+                #print ("----------Start----------")
+                #print (val, pulse)
+                #print ("-----------End-----------\n")
+                #print ("Size of array is " + str(len(command)))
+        #Display message
+        
+        if len(message)>0:
+            print("Message: ", message)
+            
+            #find note,
+            note = binascii.unhexlify('%x' % int(message[0:8] , 2))
+            print("Note: ", note)
+        
+            #Frequency
+            frequency = int(message[8:16],2)
+            print("Frequency: ", frequency)
+            
+            #Amplitude
+            amplitude = int(message[16:33],2)
+            print("Amplitude: ", amplitude)                
