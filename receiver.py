@@ -11,6 +11,21 @@ INPUT_WIRE = 23
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(INPUT_WIRE, GPIO.IN)
 
+def fletcher32(data, count):
+    """"""
+    sum1 = 0
+    sum2 = 0
+
+    for i in range(0, count):
+        sum1 = (sum1 + data[i]) % 65535
+        sum2 = (sum2 + sum1) % 65535
+
+    return (sum2 << 16) | sum1
+
+# providedChecksum = bla bla bla
+# calculatedChecksum = fletcher32([ord(note), amplitude, duration], 3)
+# checkSumMatches = providedChecksum == calculatedChecksum
+
 while True:
     value = 1
     # Loop until we read a 0
