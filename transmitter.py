@@ -17,10 +17,10 @@ try:
             if i == 1:
                 modulator.start()
                 GPIO.output(led_pin, GPIO.HIGH)
-                time.sleep(0.0005625)
+                time.sleep(0.0005625) #562.5 us
                 modulator.clear()
                 GPIO.output(led_pin, GPIO.LOW)
-                time.sleep(0.0016875)
+                time.sleep(0.0016875) #1.6875 ms
             else:
                 modulator.clear()
                 GPIO.output(led_pin, GPIO.LOW)
