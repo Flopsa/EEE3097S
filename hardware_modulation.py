@@ -14,7 +14,7 @@ class modulator(object):
         self.pi.hardware_PWM(18, freq, duty_cycle)
 
     def clear(self):
-        self.pi.wave_clear()
+`       self.pi.hardware_PWM(18, 1, 0)
 
     def stop(self):
         self.pi.stop()
