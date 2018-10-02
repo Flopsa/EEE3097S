@@ -34,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
     private Button b_btn;
     private Button c_btn;
     private Button d_btn;
+    private Button e_btn;
+    private Button f_btn;
+    private Button g_btn;
 
+    private FloatingActionButton undo_btn;
     private FloatingActionButton send_btn;
 
     public void sendMessage(String message){
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         resetConnection();
         if (device == null) {
             //run 'hciconfig' on pi to find your BT Mac address
-            mDevice = mBluetoothAdapter.getRemoteDevice("B8:27:EB:59:E4:2C");
+            mDevice = mBluetoothAdapter.getRemoteDevice("B8:27:EB:44:D5:50");
         }
 
         // Make an RFCOMM binding.
@@ -134,8 +138,11 @@ public class MainActivity extends AppCompatActivity {
         b_btn = (Button) findViewById(R.id.b_btn);
         c_btn = (Button) findViewById(R.id.c_btn);
         d_btn = (Button) findViewById(R.id.d_btn);
+        e_btn = (Button) findViewById(R.id.e_btn);
+        f_btn = (Button) findViewById(R.id.f_btn);
+        g_btn = (Button) findViewById(R.id.g_btn);
         mOutEditText = (EditText) findViewById(R.id.send_sequence);
-        Button undo_btn = (Button) findViewById(R.id.undo_btn);
+        undo_btn = (FloatingActionButton) findViewById(R.id.undo_btn);
         send_btn = (FloatingActionButton) findViewById(R.id.send_btn);
 
        // mSerialService = new BluetoothSerialService(this);
@@ -205,11 +212,53 @@ public class MainActivity extends AppCompatActivity {
                 mOutEditText.setText(sequence);
             }
         });
+        e_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (firstClick) {
+                    sequence = "e,10,10";
+                    mOutEditText.setVisibility(View.VISIBLE);
+                    firstClick = false;
+                } else {
+                    sequence += ",e,10,10";
+                }
+                mOutEditText.setText(sequence);
+            }
+        });
+        f_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (firstClick) {
+                    sequence = "f,10,10";
+                    mOutEditText.setVisibility(View.VISIBLE);
+                    firstClick = false;
+                } else {
+                    sequence += ",f,10,10";
+                }
+                mOutEditText.setText(sequence);
+            }
+        });
+        g_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (firstClick) {
+                    sequence = "g,10,10";
+                    mOutEditText.setVisibility(View.VISIBLE);
+                    firstClick = false;
+                } else {
+                    sequence += ",g,10,10";
+                }
+                mOutEditText.setText(sequence);
+            }
+        });
 
         undo_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sequence = sequence.substring(0, sequence.length()-8);
+                if (sequence.length() == 0){
+                    firstClick = true;
+                }
                 mOutEditText.setText(sequence);
             }
         });
