@@ -70,9 +70,10 @@ while True:
     '''
     print("----------Start---------")
     for (val, pulse) in command:
-        print val, pulse
-    print("----------End-----------")
-    '''
+        print (str(val) +" "+ str(pulse))
+    print("----------End-----------")'''
+    
+    print(len(command))
     for i in range(0, len(command)-1, 2):
         if (command[i][1] > 8000) and (command[i+1][1] > 3000 and command[i+1][1] < 5000): #Start command
             for j in range(i+2, len(command)-1, 2):
@@ -84,16 +85,19 @@ while True:
             break
     if len(message) > 24: 
         print("Message {}".format(message))
-        note = chr(int(message[0:8], 2))
-        amp = int(message[8:16], 2)
-        duration = int(message[16:24], 2)
-        checksum = int(message[24:40], 2)
+        for i in range(0, len(message)-2, 40):
 
-        print("Note:" + note)
-        print("Amp: " + str(amp))
-        print("Dur: " + str(duration))
-        print("Check received " + str(checksum))
+            note = chr(int(message[i:i+8], 2))
+            amp = int(message[i+8:i+16], 2)
+            duration = int(message[i+16:i+24], 2)
+            checksum = int(message[i+24:i+40], 2)
+            print(message[i+24:i+40])
 
-        new_check = fletcher16([ord(note), amp, duration], 3)
-        print("new checksum: " + str(new_check))
+            print("Note:" + note)
+            print("Amp: " + str(amp))
+            print("Dur: " + str(duration))
+            print("Check received " + str(checksum))
+
+            new_check = fletcher16([ord(note), amp, duration], 3)
+            print("new checksum: " + str(new_check))
        
