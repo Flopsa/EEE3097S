@@ -2,7 +2,6 @@ import RPi.GPIO as GPIO
 import hardware_modulation
 import time
 from bluetooth import *
-import bitarray
 
 server_sock=BluetoothSocket( RFCOMM )
 server_sock.bind(("",PORT_ANY))
@@ -64,7 +63,6 @@ def fletcher16(data, count):
 
 while True:
     print "Waiting for connection on RFCOMM channel %d" % port
-    ba = bitarray.bitarray()
     time.sleep(0.01)
     try:
         client_sock, client_info = server_sock.accept()
