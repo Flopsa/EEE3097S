@@ -9,8 +9,10 @@
     <LinearLayout
         android:id="@+id/tune_buttons"
         android:padding="8dp"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
         <Button
             android:id="@+id/a_btn"
             android:text="@string/a"
@@ -41,25 +43,64 @@
             android:layout_margin="10dp"
             android:layout_width="50dp"
             android:layout_height="50dp" />
+
+
     </LinearLayout>
+
     <LinearLayout
-        android:layout_toEndOf="@+id/tune_buttons"
-        android:layout_toRightOf="@+id/tune_buttons"
-        android:padding="8dp"
+        android:id="@+id/tune_buttons_2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tune_buttons"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:padding="8dp"
+        android:orientation="horizontal">
+
         <Button
-            android:id="@+id/undo_btn"
-            android:text="z"
+            android:id="@+id/e_btn"
             android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/roundedbutton"
+            android:text="@string/e" />
+
+        <Button
+            android:id="@+id/g_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/roundedbutton"
+            android:text="@string/g" />
+
+        <Button
+            android:id="@+id/f_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/roundedbutton"
+            android:text="@string/f" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/undo_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:focusable="true"
+
+            app:srcCompat="@android:drawable/ic_menu_revert" />
     </LinearLayout>
+
     <EditText
         android:id="@+id/send_sequence"
         android:visibility="invisible"
         android:padding="16dp"
         android:layout_above="@+id/send_btn"
-        android:layout_below="@+id/tune_buttons"
+        android:layout_below="@+id/tune_buttons_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text|textMultiLine"
@@ -76,7 +117,6 @@
         android:clickable="true"
         android:focusable="true"
         app:srcCompat="@android:drawable/ic_menu_send" />
-
 </RelativeLayout>
 
 
