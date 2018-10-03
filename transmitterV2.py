@@ -27,7 +27,7 @@ GPIO.setup(led_pin, GPIO.OUT)
 def transmit_message(message):
     modulator = hardware_modulation.modulator()
     try:
-        modulator.start(38000, 50000)
+        modulator.start(38000, 500000)
         GPIO.output(led_pin, GPIO.HIGH)
         time.sleep(0.0090000) # 9 ms
         GPIO.output(led_pin, GPIO.LOW)
