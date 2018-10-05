@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private Button e_btn;
     private Button f_btn;
     private Button g_btn;
+    private Button space_btn;
 
     private FloatingActionButton undo_btn;
     private FloatingActionButton send_btn;
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         e_btn = (Button) findViewById(R.id.e_btn);
         f_btn = (Button) findViewById(R.id.f_btn);
         g_btn = (Button) findViewById(R.id.g_btn);
+        space_btn = (Button) findViewById(R.id.space_btn);
         mOutEditText = (EditText) findViewById(R.id.send_sequence);
         undo_btn = (FloatingActionButton) findViewById(R.id.undo_btn);
         send_btn = (FloatingActionButton) findViewById(R.id.send_btn);
@@ -247,6 +249,19 @@ public class MainActivity extends AppCompatActivity {
                     firstClick = false;
                 } else {
                     sequence += ",g,10,10";
+                }
+                mOutEditText.setText(sequence);
+            }
+        });
+        space_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (firstClick) {
+                    sequence = "_,0,10";
+                    mOutEditText.setVisibility(View.VISIBLE);
+                    firstClick = false;
+                } else {
+                    sequence += ",_,0,10";
                 }
                 mOutEditText.setText(sequence);
             }

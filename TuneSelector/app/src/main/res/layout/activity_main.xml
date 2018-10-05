@@ -8,8 +8,8 @@
 
     <LinearLayout
         android:id="@+id/tune_buttons"
-        android:padding="8dp"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -54,7 +54,6 @@
         android:layout_below="@+id/tune_buttons"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:padding="8dp"
         android:orientation="horizontal">
 
         <Button
@@ -67,6 +66,15 @@
             android:text="@string/e" />
 
         <Button
+            android:id="@+id/f_btn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/roundedbutton"
+            android:text="@string/f" />
+
+        <Button
             android:id="@+id/g_btn"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -76,22 +84,30 @@
             android:text="@string/g" />
 
         <Button
-            android:id="@+id/f_btn"
+            android:id="@+id/space_btn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@drawable/roundedbutton"
-            android:text="@string/f" />
+            android:text="@string/space" />
 
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tune_buttons_2"
+        android:id="@+id/undo_layout"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        >
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/undo_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:clickable="true"
             android:focusable="true"
-
             app:srcCompat="@android:drawable/ic_menu_revert" />
     </LinearLayout>
 
@@ -100,7 +116,7 @@
         android:visibility="invisible"
         android:padding="16dp"
         android:layout_above="@+id/send_btn"
-        android:layout_below="@+id/tune_buttons_2"
+        android:layout_below="@+id/undo_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text|textMultiLine"
