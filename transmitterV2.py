@@ -69,73 +69,61 @@ def fletcher8(data, count):
 
 def recvall(sock):
     BUFF_SIZE = 1024 #this is just the max size of a buffer, not necessarily how much data is actually inside
-    part = ''
+    part = sock.recv(BUFF_SIZE)
     while True:
-        try:
-            part += sock.recv(BUFF_SIZE, socket.MSG_WAITALL)
-            #data += part
-            part_end = part.find('\n')
-            if part_end != -1:
-                data = part[:part_end]
-                break
-                
-        except socket.timeout, e:
-            print("Socket timeout")
+        part_end = part.find('\n')
+        if part_end != -1:
+            data = part[:part_end]
             break
+
+        #part += sock.recv(BUFF_SIZE, socket.MSG_WAITALL)
+        part += sock.recv(BUFF_SIZE)
+        time.sleep(0.01)
     return data
 
 while True:
     print ("Waiting for connection on RFCOMM channel %d" % port)
-    time.sleep(0.01)
     try:
         client_sock, client_info = server_sock.accept()
-        client_sock.settimeout(2)
+#        client_sock.settimeout(2)
     except Exception as e:
         print(e)
         pass
+    time.sleep(0.01)
     print ("Accepted connection from ", client_info)
     try:
         data = recvall(client_sock) 
         if len(data) == 0: break
         print ("received [%s]" % data)
+        print(len(data))
 
-        if len(data) > 1:
-            message = ""
-            num_notes = 0 
-            print("Len data: "+str(len(data)))
-            fletcher = []
-            parts = data.split(",")
-            for i in parts:
-                if i.isdigit():
-                    binary = format(int(i), '08b')
-                    fletcher.append(int(i))
-                    message = message + binary
-                else:
-                    num_notes = num_notes+1
-                    int_val = ord(i)
-                    fletcher.append(int_val)
-                    message = message + format(int_val, '08b')
+        message = ""
+        num_notes = 0 
+        fletcher = []
+        parts = data.split(",")
+        for i in parts:
+            if i.isdigit():
+                binary = format(int(i), '08b')
+                fletcher.append(int(i))
+                message = message + binary
+            else:
+                int_val = ord(i)
+                fletcher.append(int_val)
+                message = message + format(int_val, '08b')
 
-                if (len(fletcher) == 3):
-                    checksum = fletcher8(fletcher, len(fletcher))
-                    message = message + format(checksum, '08b')
-                    fletcher = []
-            print("num notes: "+str(num_notes))
-            #end signal
-            message = message + '0'
-            transmit_message(message) 
-
-    except socket.timeout, e:
-        print("Timed out")
-    except IOError as e:
-        print("IOError")
-        print(e)
-        time.sleep(0.1)
-        continue
-
+            if (len(fletcher) == 3):
+                checksum = fletcher8(fletcher, len(fletcher))
+                message = message + format(checksum, '08b')
+                fletcher = []
+        message = message + '0'
+        transmit_message(message)
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         client_sock.close()
         server_sock.close()
         break
+    except Exception as e:
+        print(e.message)
+        time.sleep(0.01)
+        pass
 
