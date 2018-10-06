@@ -42,10 +42,12 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton undo_btn;
     private FloatingActionButton send_btn;
 
-    public void sendMessage(String message){
+    public void sendMessage(String message) {
         try {
             connect(mDevice);
-            mOutputStream.write(message.getBytes());
+            //mOutputStream.flush();
+            mOutputStream.write(message.getBytes("UTF-8"));
+            System.out.println("Sending: "+message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,26 +59,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter == null){
+        if (mBluetoothAdapter == null) {
             System.out.println("Failed to get bluetoothadapter");
             return;
         }
-
-
     }
 
-    public void onStart(){
+    public void onStart() {
         super.onStart();
-        if (!mBluetoothAdapter.isEnabled()){
+        if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBT, 0);
         }
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0){
-            for (BluetoothDevice device: pairedDevices){
-                if (device.getName().equals("raspberrypi")){
-          //          mSerialService.connect(device);
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().equals("raspberrypi")) {
+                    //          mSerialService.connect(device);
                     mDevice = device;
                     connect(device);
                     break;
@@ -84,32 +84,36 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-   //     if (mSerialService == null){
-            setup();
-     //   }
+        //     if (mSerialService == null){
+        setup();
+        //   }
     }
 
-    private  boolean connect(BluetoothDevice device) {
+    private boolean connect(BluetoothDevice device) {
         // Reset all streams and socket.
         resetConnection();
         if (device == null) {
             //run 'hciconfig' on pi to find your BT Mac address
-            mDevice = mBluetoothAdapter.getRemoteDevice("B8:27:EB:44:D5:50");
+            try {
+                mDevice = mBluetoothAdapter.getRemoteDevice("B8:27:EB:44:D5:50");
+            } catch (Exception e){
+                e.printStackTrace();
+                return false;
+            }
         }
 
         // Make an RFCOMM binding.
         try {
             mSocket = mDevice.createRfcommSocketToServiceRecord(uuid);
         } catch (Exception e) {
-            System.out.println("Failed to create RFCOMM socket from uuid: "+e.getMessage());
+            System.out.println("Failed to create RFCOMM socket from uuid: " + e.getMessage());
             return false;
         }
-
 
         try {
             mSocket.connect();
         } catch (Exception e) {
-            System.out.println("Failed to connect socket:" +e.getMessage());
+            System.out.println("Failed to connect socket:" + e.getMessage());
             return false;
         }
 
@@ -124,17 +128,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void resetConnection() {
         if (mOutputStream != null) {
-            try {mOutputStream.close();} catch (Exception e) {}
+            try {
+                //mOutputStream.flush();
+                mOutputStream.close();
+            } catch (Exception e) {
+            }
             mOutputStream = null;
         }
 
         if (mSocket != null) {
-            try {mSocket.close();} catch (Exception e) {}
+            try {
+                mSocket.close();
+            } catch (Exception e) {
+            }
             mSocket = null;
         }
     }
 
-    private void setup(){
+    private void setup() {
         a_btn = (Button) findViewById(R.id.a_btn);
         b_btn = (Button) findViewById(R.id.b_btn);
         c_btn = (Button) findViewById(R.id.c_btn);
@@ -147,17 +158,17 @@ public class MainActivity extends AppCompatActivity {
         undo_btn = (FloatingActionButton) findViewById(R.id.undo_btn);
         send_btn = (FloatingActionButton) findViewById(R.id.send_btn);
 
-       // mSerialService = new BluetoothSerialService(this);
-       // mSerialService.start();
+        // mSerialService = new BluetoothSerialService(this);
+        // mSerialService.start();
 
         final class workerThread implements Runnable {
             private String btMessage;
 
-            public workerThread(String message){
+            public workerThread(String message) {
                 btMessage = message;
             }
 
-            public void run(){
+            public void run() {
                 sendMessage(btMessage);
             }
         }
@@ -270,9 +281,11 @@ public class MainActivity extends AppCompatActivity {
         undo_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sequence = sequence.substring(0, sequence.length()-8);
-                if (sequence.length() == 0){
+                if (sequence.length() <= 7) {
+                    sequence = "";
                     firstClick = true;
+                } else {
+                    sequence = sequence.substring(0, sequence.length() - 8);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -298,25 +311,39 @@ public class MainActivity extends AppCompatActivity {
         send_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (sequence.length() > 0) {
-                    sequence = sequence.replaceAll("\\s+", "");
-        //            byte[] send = sequence.getBytes();
-              //      mSerialService.write(send);
+                if (sequence == null || sequence.length() == 0){
+                    sequence = "a,10,10";
+                    for (int i = 0; i < 313; i++){
+                        // 313 * 32 =10,016 bits
+                        sequence = sequence + ",a,10,10";
+                    }
+                    sequence = sequence +"\n";
                     new Thread(new workerThread(sequence)).start();
+                    sequence = sequence.replaceAll("\n", "");
+                    mOutEditText.setVisibility(View.VISIBLE);
+                    mOutEditText.setText(sequence);
+                }
+                else if (sequence.length() > 0) {
+                    sequence = sequence.replaceAll("\\s+", "");
+                    sequence = sequence +"\n";
+                    //            byte[] send = sequence.getBytes();
+                    //      mSerialService.write(send);
+                    new Thread(new workerThread(sequence)).start();
+                    sequence = sequence.replaceAll("\n", "");
                     mOutEditText.setText(sequence);
                 }
             }
         });
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
   /*      if (mSerialService != null){
             mSerialService.stop();
         }*/
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
  /*       if (mSerialService != null){
             if (mSerialService.getState() == BluetoothSerialService.STATE_NONE){
