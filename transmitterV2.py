@@ -69,15 +69,16 @@ def fletcher8(data, count):
 
 def recvall(sock):
     BUFF_SIZE = 1024 #this is just the max size of a buffer, not necessarily how much data is actually inside
-    data = ''
+    part = ''
     while True:
         try:
-            part = sock.recv(BUFF_SIZE, socket.MSG_WAITALL)
-            data += part
-            print("Received part: "+part)
-            print("Len part " + str(len(part)))
-            if len(part) < 1007:
+            part += sock.recv(BUFF_SIZE, socket.MSG_WAITALL)
+            #data += part
+            part_end = part.find('\n')
+            if part_end != -1:
+                data = part[:part_end]
                 break
+                
         except socket.timeout, e:
             print("Socket timeout")
             break
