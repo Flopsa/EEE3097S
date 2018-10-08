@@ -1,7 +1,9 @@
 import RPi.GPIO as GPIO
 import hardware_modulation
 import time
+import socket
 from bluetooth import *
+from timeit import default_timer as timer
 
 server_sock=BluetoothSocket( RFCOMM )
 server_sock.bind(("",PORT_ANY))
@@ -27,6 +29,7 @@ GPIO.setup(led_pin, GPIO.OUT)
 def transmit_message(message):
     modulator = hardware_modulation.modulator()
     try:
+        start = timer()
         modulator.start(38000, 500000)
         GPIO.output(led_pin, GPIO.HIGH)
         time.sleep(0.0090000) # 9 ms
@@ -47,62 +50,80 @@ def transmit_message(message):
                 time.sleep(0.0005625) #562.5 us
                 GPIO.output(led_pin, GPIO.LOW)
                 time.sleep(0.0005625) #562.5 us
+        end = timer()
+        print("Message length: " + str(len(message)))
+        print("Time taken: " + str(end-start))
     except KeyboardInterrupt:
         GPIO.cleanup()
         modulator.stop()
 
-def fletcher16(data, count):
+def fletcher8(data, count):
     sum1 = 0
     sum2 = 0
 
     for i in range(0, count):
-        sum1 = (sum1 + data[i]) % 255
-        sum2 = (sum1 + sum2) % 255
+        sum1 = (sum1 + data[i]) % 15
+        sum2 = (sum1 + sum2) % 15
 
-    return (sum2 << 8) | sum1
+    return (sum2 << 4) | sum1
+
+def recvall(sock):
+    BUFF_SIZE = 1024 #this is just the max size of a buffer, not necessarily how much data is actually inside
+    part = sock.recv(BUFF_SIZE)
+    while True:
+        part_end = part.find('\n')
+        if part_end != -1:
+            data = part[:part_end]
+            break
+
+        #part += sock.recv(BUFF_SIZE, socket.MSG_WAITALL)
+        part += sock.recv(BUFF_SIZE)
+        time.sleep(0.01)
+    return data
 
 while True:
-    print "Waiting for connection on RFCOMM channel %d" % port
-    time.sleep(0.01)
+    print ("Waiting for connection on RFCOMM channel %d" % port)
     try:
         client_sock, client_info = server_sock.accept()
+#        client_sock.settimeout(2)
     except Exception as e:
         print(e)
         pass
     time.sleep(0.01)
-    print "Accepted connection from ", client_info
+    print ("Accepted connection from ", client_info)
     try:
-        data = client_sock.recv(1024)
+        data = recvall(client_sock) 
         if len(data) == 0: break
-        print "received [%s]" % data
+        print ("received [%s]" % data)
+        print(len(data))
 
-        if len(data) > 1:
-            message = ""
-            fletcher = []
-            parts = data.split(",")
-            for i in parts:
-                if i.isdigit():
-                    binary = format(int(i), '08b')
-                    fletcher.append(int(i))
-                    message = message + binary
-                else:
-                    int_val = ord(i)
-                    fletcher.append(int_val)
-                    message = message + format(int_val, '08b')
+        message = ""
+        num_notes = 0 
+        fletcher = []
+        parts = data.split(",")
+        for i in parts:
+            if i.isdigit():
+                binary = format(int(i), '08b')
+                fletcher.append(int(i))
+                message = message + binary
+            else:
+                int_val = ord(i)
+                fletcher.append(int_val)
+                message = message + format(int_val, '08b')
 
-                if (len(fletcher) == 3):
-                    checksum = fletcher16(fletcher, len(fletcher))
-                    message = message + format(checksum, '016b')
-                    fletcher = []
-            #end signal
-            message = message + '000'
-            transmit_message(message) 
-    except IOError as e:
-        print(e)
-        pass
-
+            if (len(fletcher) == 3):
+                checksum = fletcher8(fletcher, len(fletcher))
+                message = message + format(checksum, '08b')
+                fletcher = []
+        message = message + '0'
+        transmit_message(message)
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         client_sock.close()
         server_sock.close()
+        break
+    except Exception as e:
+        print(e.message)
+        time.sleep(0.01)
+        pass
 
