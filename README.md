@@ -23,4 +23,5 @@ Find BT mac address:
 
 ### Running transmitterV2.py
 Run `sudo pigpiod` to start pigpio daemon
+
 Run `sudo python transmitterV2.py` to start the transmitter
