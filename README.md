@@ -20,3 +20,7 @@ Make BT discoverable:
 
 Find BT mac address:
 `hciconfig`
+
+### Running transmitterV2.py
+Run `sudo pigpiod` to start pigpio daemon
+Run `sudo python transmitterV2.py` to start the transmitter
