@@ -3,15 +3,27 @@ package com.example.android.tuneselector;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,10 +54,18 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton undo_btn;
     private FloatingActionButton send_btn;
 
+    private String playbackMode = "sequence";
+    private String defaultAmplitude = "50";
+    private String defaultDuration = "500";
+
+    private EditText amp_value;
+    private EditText dur_value;
+
     public void sendMessage(String message) {
         try {
             connect(mDevice);
             //mOutputStream.flush();
+            message = message + "\n";
             mOutputStream.write(message.getBytes("UTF-8"));
             System.out.println("Sending: "+message);
         } catch (IOException e) {
@@ -57,11 +77,193 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar myToolBar = (Toolbar) findViewById(R.id.actionBar);
+        setSupportActionBar(myToolBar);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             System.out.println("Failed to get bluetoothadapter");
             return;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        LayoutInflater inflater;
+        View layout;
+        final AlertDialog alertDialog;
+        AlertDialog.Builder builder;
+        switch (item.getItemId()){
+            case R.id.action_settings:
+                inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                layout = inflater.inflate(R.layout.dialog_settings, (ViewGroup) findViewById(R.id.action_settings));
+                builder = new AlertDialog.Builder(this)
+                        .setView(layout)
+                        .setTitle(R.string.action_setting)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                alertDialog = builder.create();
+                alertDialog.show();
+                final SeekBar ampSeekbar = (SeekBar)layout.findViewById(R.id.amp_seekbar);
+                final SeekBar durSeekbar = (SeekBar)layout.findViewById(R.id.duration_seekbar);
+                amp_value = (EditText) layout.findViewById(R.id.amplitude_value);
+                dur_value = (EditText)layout.findViewById(R.id.dur_value);
+                amp_value.setFocusable(false);
+                amp_value.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        amp_value.setFocusableInTouchMode(true);
+                        return false;
+                    }
+                });
+                dur_value.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        dur_value.setFocusableInTouchMode(true);
+                        return false;
+                    }
+                });
+
+                dur_value.setFocusable(false);
+                ampSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                        //Do something here with new value
+                        String sbValue = Integer.toString(progress);
+                        defaultAmplitude = sbValue;
+                        amp_value.setText(sbValue);
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+                durSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                        //Do something here with new value
+                        String sbValue = Integer.toString(progress);
+                        defaultDuration = sbValue;
+                        dur_value.setText(sbValue);
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+
+                amp_value.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (s.toString().equals("")) {
+                            defaultDuration = "0";
+                            ampSeekbar.setProgress(0);
+                        } else{
+                            defaultAmplitude = s.toString();
+                            ampSeekbar.setProgress(Integer.parseInt(s.toString()));
+                        }
+                    }
+                });
+                dur_value.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (s.toString().equals("")){
+                           defaultDuration = "0";
+                           durSeekbar.setProgress(0);
+                        } else{
+                            defaultDuration = s.toString();
+                            durSeekbar.setProgress(Integer.parseInt(s.toString()));
+                        }
+                    }
+                });
+                return true;
+
+            case R.id.default_mode:
+                final CharSequence[] modes = {"Note", "Song"};
+                builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.example_songs);
+                builder.setSingleChoiceItems(modes, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        playbackMode = modes[which].toString();
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog = builder.create();
+                alertDialog.show();
+                return true;
+            case R.id.example_songs:
+                final CharSequence[] example_songs = {"Super Mario", "Pirates"};
+                builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.example_songs);
+                builder.setSingleChoiceItems(example_songs, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (example_songs[which] == "Super Mario") {
+                            sequence = "g,100,1000,_,100,1000,e,100,500,_,100,200,e,100,500,c," +
+                                    "100,250,e,1,500,g,100,500";
+                        } else if (example_songs[which] == "Pirates") {
+                        }
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mOutEditText.getVisibility() == View.INVISIBLE){
+                            mOutEditText.setVisibility(View.VISIBLE);
+                        }
+                        mOutEditText.setText(sequence);
+                    }
+                });
+                alertDialog = builder.create();
+                alertDialog.show();
+
+            default: return super.onOptionsItemSelected(item);
         }
     }
 
@@ -176,12 +378,19 @@ public class MainActivity extends AppCompatActivity {
         a_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "a,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "a,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",a,10,10";
+                    if (firstClick) {
+                        sequence = "a,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",a,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -189,12 +398,19 @@ public class MainActivity extends AppCompatActivity {
         b_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "b,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "b,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",b,10,10";
+                    if (firstClick) {
+                        sequence = "b,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",b,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -202,12 +418,19 @@ public class MainActivity extends AppCompatActivity {
         c_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "c,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "c,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",c,10,10";
+                    if (firstClick) {
+                        sequence = "c,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",c,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -215,12 +438,19 @@ public class MainActivity extends AppCompatActivity {
         d_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "d,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "d,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",d,10,10";
+                    if (firstClick) {
+                        sequence = "d,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",d,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -228,12 +458,19 @@ public class MainActivity extends AppCompatActivity {
         e_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "e,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "e,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",e,10,10";
+                    if (firstClick) {
+                        sequence = "e,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",e,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -241,12 +478,19 @@ public class MainActivity extends AppCompatActivity {
         f_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "f,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "f,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",f,10,10";
+                    if (firstClick) {
+                        sequence = "f,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",f,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -254,12 +498,19 @@ public class MainActivity extends AppCompatActivity {
         g_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "g,10,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "g,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",g,10,10";
+                    if (firstClick) {
+                        sequence = "g,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",g,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -267,12 +518,19 @@ public class MainActivity extends AppCompatActivity {
         space_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (firstClick) {
-                    sequence = "_,0,10";
-                    mOutEditText.setVisibility(View.VISIBLE);
-                    firstClick = false;
+                if (playbackMode.equals("Note")){
+                    sequence = "_,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
                 } else {
-                    sequence += ",_,0,10";
+                    if (firstClick) {
+                        sequence = "_,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",_,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
             }
@@ -312,24 +570,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (sequence == null || sequence.length() == 0){
-                    sequence = "a,10,10";
-                    for (int i = 0; i < 313; i++){
+                    // Used to test Bit Error Rate
+                    sequence = "a,50,2500";
+                    for (int i = 0; i < 312; i++){
                         // 313 * 32 =10,016 bits
-                        sequence = sequence + ",a,10,10";
+                        sequence = sequence + ",a,50,2000";
                     }
-                    sequence = sequence +"\n";
                     new Thread(new workerThread(sequence)).start();
-                    sequence = sequence.replaceAll("\n", "");
                     mOutEditText.setVisibility(View.VISIBLE);
                     mOutEditText.setText(sequence);
                 }
                 else if (sequence.length() > 0) {
+                    // Remove all whitespace
                     sequence = sequence.replaceAll("\\s+", "");
-                    sequence = sequence +"\n";
                     //            byte[] send = sequence.getBytes();
                     //      mSerialService.write(send);
                     new Thread(new workerThread(sequence)).start();
-                    sequence = sequence.replaceAll("\n", "");
+                    // Strip new line character.
                     mOutEditText.setText(sequence);
                 }
             }
