@@ -51,8 +51,8 @@ def transmit_message(message):
                 GPIO.output(led_pin, GPIO.LOW)
                 time.sleep(0.0005625) #562.5 us
         end = timer()
-        print("Message length: " + str(len(message)))
-        print("Time taken: " + str(end-start))
+        #print("Message length: " + str(len(message)))
+        #print("Time taken: " + str(end-start))
     except KeyboardInterrupt:
         GPIO.cleanup()
         modulator.stop()
@@ -95,21 +95,24 @@ while True:
         data = recvall(client_sock) 
         if len(data) == 0: break
         print ("received [%s]" % data)
-        print(len(data))
+        #print(len(data))
 
         message = ""
         num_notes = 0 
         fletcher = []
         parts = data.split(",")
-        for i in parts:
-            if i.isdigit():
-                binary = format(int(i), '08b')
-                fletcher.append(int(i))
+        for i in range(len(parts)):
+            if parts[i].isdigit():
+                int_val = int(parts[i])
+                if (int(i)+1) % 3 == 0: #amplitudes
+                    int_val = int(round(int_val*0.05))   # scale down to fit into a single bit
+                binary = format(int_val, '08b')
+                fletcher.append(int(int_val))
                 message = message + binary
             else:
-                int_val = ord(i)
-                fletcher.append(int_val)
-                message = message + format(int_val, '08b')
+                letter = ord(parts[i])
+                fletcher.append(letter)
+                message = message + format(letter, '08b')
 
             if (len(fletcher) == 3):
                 checksum = fletcher8(fletcher, len(fletcher))
