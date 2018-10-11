@@ -395,6 +395,28 @@ public class MainActivity extends AppCompatActivity {
                 mOutEditText.setText(sequence);
             }
         });
+
+        a_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (playbackMode.equals("Note")){
+                    sequence = "A,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
+                } else {
+                    if (firstClick) {
+                        sequence = "A,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",A,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
+                }
+                mOutEditText.setText(sequence);
+                return true;
+            }
+        });
         b_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -435,6 +457,27 @@ public class MainActivity extends AppCompatActivity {
                 mOutEditText.setText(sequence);
             }
         });
+        c_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (playbackMode.equals("Note")){
+                    sequence = "C,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
+                } else {
+                    if (firstClick) {
+                        sequence = "C,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",C,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
+                }
+                mOutEditText.setText(sequence);
+                return true;
+            }
+        });
         d_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -453,6 +496,27 @@ public class MainActivity extends AppCompatActivity {
                     mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
+            }
+        });
+        d_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (playbackMode.equals("Note")){
+                    sequence = "D,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
+                } else {
+                    if (firstClick) {
+                        sequence = "D,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",D,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
+                }
+                mOutEditText.setText(sequence);
+                return true;
             }
         });
         e_btn.setOnClickListener(new View.OnClickListener() {
@@ -495,6 +559,27 @@ public class MainActivity extends AppCompatActivity {
                 mOutEditText.setText(sequence);
             }
         });
+        f_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (playbackMode.equals("Note")){
+                    sequence = "F,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
+                } else {
+                    if (firstClick) {
+                        sequence = "F,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",F,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
+                }
+                mOutEditText.setText(sequence);
+                return true;
+            }
+        });
         g_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -513,6 +598,27 @@ public class MainActivity extends AppCompatActivity {
                     mOutEditText.setVisibility(View.VISIBLE);
                 }
                 mOutEditText.setText(sequence);
+            }
+        });
+        g_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (playbackMode.equals("Note")){
+                    sequence = "G,"+ defaultAmplitude +","+defaultDuration;
+                    new Thread(new workerThread(sequence)).start();
+                } else {
+                    if (firstClick) {
+                        sequence = "G,"+ defaultAmplitude +","+defaultDuration;
+                        firstClick = false;
+                    } else {
+                        sequence = sequence + ",G,"+ defaultAmplitude +","+defaultDuration;
+                    }
+                }
+                if (mOutEditText.getVisibility() == View.INVISIBLE){
+                    mOutEditText.setVisibility(View.VISIBLE);
+                }
+                mOutEditText.setText(sequence);
+                return true;
             }
         });
         space_btn.setOnClickListener(new View.OnClickListener() {
